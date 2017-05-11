@@ -26,7 +26,6 @@ class BoxPlayer extends Component {
 
         DZ.Event.subscribe('player_position', function(arg){
 
-            console.log(arg[0], arg[1])
             let perc = (100*arg[0]/arg[1]) || 0;
             if(perc == 0)
                 home_class.props.atualizar();
@@ -35,6 +34,8 @@ class BoxPlayer extends Component {
         });
 
         DZ.Event.subscribe('player_loaded', function() {
+            //console.log(home_class.props.musica_atual)
+            // if(home_class.props.musica_atual != undefined)
 			console.log('fim')
 		});
 
@@ -101,7 +102,7 @@ class BoxPlayer extends Component {
                                 </div>
                             </div>
                             <div style={styles.progressbar}>
-                                <div style={{...styles.bar, ...{width:this.state.progressbar}}}></div>
+                                <div style={{...styles.bar, ...{width:`${this.state.progressbar}%`}  }} ></div>
                             </div>
                         </article>
                     </div>

@@ -60,46 +60,64 @@ class Home extends Component {
 
     prevSong(){
         this.DZ.player.prev();
-        this.musica_atual = this.DZ.player.getCurrentTrack();
+        var props = this;
+        setTimeout(function(){
+            props.atualizar();
 
+        }, 1000 * 1)
     }
     nextSong(){
         this.DZ.player.next();
+         var props = this;
         setTimeout(function(){
+            props.atualizar();
 
-            this.musica_atual = this.DZ.player.getCurrentSong();
-        },600)
-        
+        }, 1000 * 1)
     }
     tocar(track){
         let DZ = window.DZ;
+    
+        let fila =  this.state.fila || [];
+    //    fila.push(track)
+    //    this.setState({fila:fila})
 
-        this.fila = this.fila.map(
-            (musica) => {
-                if(musica != track.id)
-                    return track.id;
-                
-            }
-        )
         this.musica_atual = track;
         this.styleExtra = {backgroundImage: `url("${this.musica_atual.album.cover_xl}")` } ;
         
-        this.setState({...this.state, tocando: true, musica_atual: track});
         DZ.player.playTracks([track.id]);
+        this.setState({...this.state, tocando: true, musica_atual:{...track}});
 
-        
-        
 
     }
 
     atualizar(){
-        this.musica_atual = window.DZ.player.getCurrentTrack();
-        console.log(this.musica_atual)
+        try{
+
+            let id =( window.DZ.player.getCurrentSong()).id;
+            console.log(id);
+            console.log('fila',this.state.fila)
+            let musica_atual = this.state.fila.filter(function(el){ return el.id == id});
+
+            console.log(musica_atual)
+            this.setState({...this, musica_atual:{...musica_atual}})
+        }
+        catch(e){
+            console.error("Falha ao atualizar", e);
+        }
     }
 
-    addFila(id){
+    addFila(track){
             let DZ = window.DZ;
-            DZ.player.addToQueue([id]);
+            let fila = this.state.fila || [];
+            try{
+                fila = fila.concat(track);
+                this.setState({...this.state, fila: fila});
+
+            }
+            catch(e){
+                console.error("Falha ao adicionar elemento na fila", e)
+            }
+            DZ.player.addToQueue([track.id]);
             alert("Adicionado para fila!");
     }
 
@@ -132,7 +150,7 @@ class Home extends Component {
                                                             </div>
                                                             <br/>
                                                             <br/>
-                                                            <div className="button is-small is-danger is-flex" onClick={ () => this.addFila(item.id)}>
+                                                            <div className="button is-small is-danger is-flex" onClick={ () => this.addFila(item)}>
                                                             Add para fila
                                                             </div>
                                                         </div>
@@ -193,10 +211,10 @@ class Home extends Component {
                <nav className="nav hero is-dark" style={{bottom:0, position:'fixed',height:60, width:'100%'}} >
                    <div className="">
                        <BoxPlayer tocando={this.state.tocando}
-                        nome={this.musica_atual != null ? this.musica_atual.title_short : '---------'}
-                        autor={this.musica_atual != null ? this.musica_atual.artist.name : '--------'}
-                        cover={this.musica_atual != null ? this.musica_atual.album.cover_xl : ''}
-                        duracao={this.musica_atual != null ? (this.musica_atual.duration) : 0}
+                        nome={this.state.musica_atual != null ? this.state.musica_atual.title_short || this.state.musica_atual.title : '---------'}
+                        autor={this.state.musica_atual != null ? this.state.musica_atual.artist.name : '--------'}
+                        cover={this.state.musica_atual != null ? this.state.musica_atual.album.cover_xl : ''}
+                        duracao={this.state.musica_atual != null ? (this.state.musica_atual.duration) : 0}
                         play={this.play.bind(this)}
                         nextSong={this.nextSong.bind(this)}
                         prevSong={this.prevSong.bind(this)}
